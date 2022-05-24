@@ -83,7 +83,7 @@ router.post("/sendemailotp", async (req, res) => {
 
 router.post("/sendphoneotp", async (req, res) => {
   const { error } = sendPhoneOtpValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   const phoneOtp = Math.floor(1000 + Math.random() * 9000);
 
   try {
@@ -93,9 +93,9 @@ router.post("/sendphoneotp", async (req, res) => {
       { upsert: true }
     );
     // send otp as message
-    res.send(`Phone Otp send ${phoneOtp}`);
+    res.json({ message: `Phone Otp send ${phoneOtp}` });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({ message: err });
   }
 });
 
