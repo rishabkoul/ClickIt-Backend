@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const jwt = require("jsonwebtoken");
 const Email = require("../model/Email");
 const Phone = require("../model/Phone");
 const User = require("../model/User");
@@ -22,9 +23,7 @@ router.post("/signup", async (req, res) => {
 
   const user = new User({
     email: req.body.email,
-    emailOtp: req.body.emailOtp,
     phone: req.body.phone,
-    phoneOtp: req.body.phoneOtp,
   });
 
   try {
@@ -39,10 +38,29 @@ router.post("/signup", async (req, res) => {
     });
     if (!phoneOtpEntry) return res.status(400).send("Phone not verified");
     const savedUser = await user.save();
-    res.send(savedUser);
+    const token = jwt.sign({ _id: savedUser._id }, process.env.TOKEN_SECRET);
+    res.header("auth-token", token).send(token);
   } catch (err) {
     res.status(400).send(err);
   }
+});
+
+router.post("/loginemail", async (req, res) => {
+  const { error } = loginEmailValidation(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  const emailExists = await User.findOne({ email: req.body.email });
+  if (!emailExists)
+    return res.status(400).send("Email dosent exist signup first");
+
+  const entry = await Email.findOne({
+    email: req.body.email,
+    emailOtp: req.body.emailOtp,
+  });
+  if (!entry) return res.status(400).send("Email not verified");
+
+  const token = jwt.sign({ _id: emailExists._id }, process.env.TOKEN_SECRET);
+  res.header("auth-token", token).send(token);
 });
 
 router.post("/sendemailotp", async (req, res) => {
@@ -63,7 +81,7 @@ router.post("/sendemailotp", async (req, res) => {
   }
 });
 
-router.post("/sendephoneotp", async (req, res) => {
+router.post("/sendphoneotp", async (req, res) => {
   const { error } = sendPhoneOtpValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const phoneOtp = Math.floor(1000 + Math.random() * 9000);
