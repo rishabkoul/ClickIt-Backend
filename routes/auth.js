@@ -13,13 +13,15 @@ const {
 
 router.post("/signup", async (req, res) => {
   const { error } = signUpValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
 
   const emailExists = await User.findOne({ email: req.body.email });
-  if (emailExists) return res.status(400).send("Email already exists");
+  if (emailExists)
+    return res.status(400).json({ message: "Email already exists" });
 
   const phoneExists = await User.findOne({ phone: req.body.phone });
-  if (phoneExists) return res.status(400).send("Phone no already exists");
+  if (phoneExists)
+    return res.status(400).json({ message: "Phone no already exists" });
 
   const user = new User({
     email: req.body.email,
@@ -31,41 +33,61 @@ router.post("/signup", async (req, res) => {
       email: req.body.email,
       emailOtp: req.body.emailOtp,
     });
-    if (!emailOtpEntry) return res.status(400).send("Email not verified");
+    if (!emailOtpEntry)
+      return res.status(400).json({ message: "Email not verified" });
     const phoneOtpEntry = await Phone.findOne({
       phone: req.body.phone,
       phoneOtp: req.body.phoneOtp,
     });
-    if (!phoneOtpEntry) return res.status(400).send("Phone not verified");
+    if (!phoneOtpEntry)
+      return res.status(400).json({ message: "Phone not verified" });
     const savedUser = await user.save();
     const token = jwt.sign({ _id: savedUser._id }, process.env.TOKEN_SECRET);
-    res.header("auth-token", token).send(token);
+    res.header("auth-token", token).json({ token: token });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({ message: err });
   }
 });
 
 router.post("/loginemail", async (req, res) => {
   const { error } = loginEmailValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
 
   const emailExists = await User.findOne({ email: req.body.email });
   if (!emailExists)
-    return res.status(400).send("Email dosent exist signup first");
+    return res.status(400).json({ message: "Email dosent exist signup first" });
 
   const entry = await Email.findOne({
     email: req.body.email,
     emailOtp: req.body.emailOtp,
   });
-  if (!entry) return res.status(400).send("Email not verified");
+  if (!entry) return res.status(400).json({ message: "Email not verified" });
 
   const token = jwt.sign({ _id: emailExists._id }, process.env.TOKEN_SECRET);
-  res.header("auth-token", token).send(token);
+  res.header("auth-token", token).json({ token: token });
+});
+
+router.post("/loginphone", async (req, res) => {
+  const { error } = loginPhoneValidation(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
+  const phoneExists = await User.findOne({ phone: req.body.phone });
+  if (!phoneExists)
+    return res.status(400).json({ message: "Phone dosent exist signup first" });
+
+  const entry = await Phone.findOne({
+    phone: req.body.phone,
+    phoneOtp: req.body.phoneOtp,
+  });
+  if (!entry) return res.status(400).json({ message: "Phone not verified" });
+
+  const token = jwt.sign({ _id: phoneExists._id }, process.env.TOKEN_SECRET);
+  res.header("auth-token", token).json({ token: token });
 });
 
 router.post("/sendemailotp", async (req, res) => {
   const { error } = sendEmailOtpValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   const mailOtp = Math.floor(1000 + Math.random() * 9000);
 
   try {
@@ -75,9 +97,9 @@ router.post("/sendemailotp", async (req, res) => {
       { upsert: true }
     );
     // send otp as email
-    res.send(`Email Otp send ${mailOtp}`);
+    res.json({ message: `Email Otp send ${mailOtp}` });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({ message: err });
   }
 });
 
@@ -101,7 +123,7 @@ router.post("/sendphoneotp", async (req, res) => {
 
 router.post("/verifyemail", async (req, res) => {
   const { error } = loginEmailValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   const otpSupplied = req.body.emailOtp;
 
   try {
@@ -109,16 +131,16 @@ router.post("/verifyemail", async (req, res) => {
       email: req.body.email,
       emailOtp: otpSupplied,
     });
-    if (entryExist) return res.send("Email verified");
-    else return res.status(400).send("Email not verified");
+    if (entryExist) return res.json({ message: "Email verified" });
+    else return res.status(400).json({ message: "Email not verified" });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({ message: err });
   }
 });
 
 router.post("/verifyphone", async (req, res) => {
   const { error } = loginPhoneValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).json({ message: error.details[0].message });
   const otpSupplied = req.body.phoneOtp;
 
   try {
@@ -126,10 +148,10 @@ router.post("/verifyphone", async (req, res) => {
       phone: req.body.phone,
       phoneOtp: otpSupplied,
     });
-    if (entryExist) return res.send("Phone verified");
-    else return res.status(400).send("Phone not verified");
+    if (entryExist) return res.json({ message: "Phone verified" });
+    else return res.status(400).json({ message: "Phone not verified" });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).json({ message: err });
   }
 });
 
