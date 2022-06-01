@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 
 const authRoute = require("./routes/auth");
 const nonGroupRoutes = require("./routes/nonGroupRoutes");
+const agreementRoutes = require("./routes/agreement");
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/user", authRoute);
 app.use("/api/nongrouproutes", nonGroupRoutes);
+app.use("/api/agreement", agreementRoutes);
 
 app.listen(process.env.PORT || 3000, () =>
   console.log("Server running on port 3000")
