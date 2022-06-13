@@ -13,6 +13,31 @@ const userSchema = new mongoose.Schema({
     min: 1000000000,
     required: true,
   },
+  name: {
+    type: String,
+    max: 255,
+    min: 5,
+  },
+  photo: {
+    type: String,
+  },
+  lat: {
+    type: Number,
+  },
+  lon: {
+    type: Number,
+  },
+  kit: {
+    type: String,
+  },
+  ratePerDay: {
+    type: Number,
+  },
+  rating: {
+    type: Number,
+    max: 5,
+    min: 0,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
