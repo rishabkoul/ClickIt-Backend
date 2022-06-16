@@ -31,7 +31,7 @@ router.post("/editprofile", verify, async (req, res) => {
   }
 });
 
-router.post("/getprofile", verify, async (req, res) => {
+router.get("/getprofile", verify, async (req, res) => {
   try {
     const profile = await User.findOne({
       _id: req.user._id,
