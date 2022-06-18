@@ -19,7 +19,7 @@ router.post("/editprofile", verify, async (req, res) => {
     profile.email = req.body.email;
     profile.phone = req.body.phone;
     profile.name = req.body.name;
-    profile.photo = req.body.photo;
+    // profile.photo = req.body.photo;
     profile.kit = req.body.kit;
     profile.ratePerDay = req.body.ratePerDay;
 
