@@ -58,9 +58,19 @@ const editProfileValidation = (data) => {
   return schema.validate(data);
 };
 
+const editLocationValidation = (data) => {
+  const schema = Joi.object({
+    lat: Joi.number().required(),
+    lon: Joi.number().required(),
+  });
+
+  return schema.validate(data);
+};
+
 module.exports.signUpValidation = signUpValidation;
 module.exports.loginPhoneValidation = loginPhoneValidation;
 module.exports.loginEmailValidation = loginEmailValidation;
 module.exports.sendEmailOtpValidation = sendEmailOtpValidation;
 module.exports.sendPhoneOtpValidation = sendPhoneOtpValidation;
 module.exports.editProfileValidation = editProfileValidation;
+module.exports.editLocationValidation = editLocationValidation;
