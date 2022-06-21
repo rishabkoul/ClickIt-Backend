@@ -16,8 +16,10 @@ router.post("/editlocation", verify, async (req, res) => {
         .status(400)
         .json({ message: "User doesnt Exist try signingup" });
     }
-    profile.lat = req.body.lat;
-    profile.lon = req.body.lon;
+    profile.location = {
+      type: "Point",
+      coordinates: [req.body.lon, req.body.lat],
+    };
 
     await profile.save();
 

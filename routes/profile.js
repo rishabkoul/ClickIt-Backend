@@ -2,7 +2,6 @@ const router = require("express").Router();
 const User = require("../model/User");
 const { editProfileValidation } = require("../validation");
 const verify = require("./verifyToken");
-const { distanceSort } = require("../utlis/Distance");
 
 router.post("/editprofile", verify, async (req, res) => {
   const { error } = editProfileValidation(req.body);
@@ -54,33 +53,25 @@ router.get("/getallprofiles", verify, async (req, res) => {
 
   try {
     const count = await User.countDocuments();
-    User.find().exec(function (err, instances) {
-      let sorted = distanceSort(instances, req.body.lat, req.body.lon);
-      let response = {};
-      if (err) {
-        return res.status(500).json({ message: "Server Error" });
-      } else {
-        let start_index = (page - 1) * limit;
-        if (start_index < 0) {
-          start_index = 0;
-        }
-        if (start_index > count) {
-          start_index = count - 1;
-        }
-        let end_index = start_index + limit - 1;
-        if (end_index < 0) {
-          end_index = 0;
-        }
-        if (end_index > count) {
-          end_index = count - 1;
-        }
-        response.status = 200;
-        response.profiles = sorted.slice(start_index, end_index + 1);
-        response.totalPages = Math.ceil(count / limit);
-        response.currentPage = Number(page);
-      }
+    const profiles = await User.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [req.body.lon, req.body.lat],
+          },
+          // $maxDistance: 4000000,
+        },
+      },
+    })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .exec();
 
-      return res.status(response.status).json(response);
+    res.json({
+      profiles: profiles,
+      totalPages: Math.ceil(count / limit),
+      currentPage: Number(page),
     });
   } catch (error) {
     res.status(500).json({ msg: "Server Error" });
