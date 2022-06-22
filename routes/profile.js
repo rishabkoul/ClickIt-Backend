@@ -49,7 +49,7 @@ router.get("/getprofile", verify, async (req, res) => {
 
 router.get("/getallprofiles", verify, async (req, res) => {
   const { page = 1 } = req.body;
-  const limit = 20;
+  const { limit = 20 } = req.body;
 
   try {
     const count = await User.countDocuments();
