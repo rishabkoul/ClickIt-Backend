@@ -48,8 +48,8 @@ router.get("/getprofile", verify, async (req, res) => {
 });
 
 router.get("/getallprofiles", verify, async (req, res) => {
-  const { page = 1 } = req.body;
-  const { limit = 20 } = req.body;
+  const { page = 1 } = req.query;
+  const { limit = 20 } = req.query;
 
   try {
     const count = await User.countDocuments();
@@ -58,7 +58,7 @@ router.get("/getallprofiles", verify, async (req, res) => {
         $near: {
           $geometry: {
             type: "Point",
-            coordinates: [req.body.lon, req.body.lat],
+            coordinates: [req.query.lon, req.query.lat],
           },
           // $maxDistance: 4000000,
         },
@@ -74,7 +74,7 @@ router.get("/getallprofiles", verify, async (req, res) => {
       currentPage: Number(page),
     });
   } catch (error) {
-    res.status(500).json({ msg: "Server Error" });
+    res.status(500).json({ msg: `Server Error ${error}` });
   }
 });
 
