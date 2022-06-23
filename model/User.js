@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
   ratePerDay: {
     type: Number,
   },
+  categories: {
+    type: Array,
+  },
   rating: {
     type: Number,
     max: 5,

@@ -53,6 +53,7 @@ const editProfileValidation = (data) => {
     // photo: Joi.string().required(),
     kit: Joi.string().required(),
     ratePerDay: Joi.number().required(),
+    categories: Joi.array(),
   });
 
   return schema.validate(data);

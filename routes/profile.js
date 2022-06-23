@@ -22,6 +22,7 @@ router.post("/editprofile", verify, async (req, res) => {
     // profile.photo = req.body.photo;
     profile.kit = req.body.kit;
     profile.ratePerDay = req.body.ratePerDay;
+    profile.categories = req.body.categories;
 
     await profile.save();
 
