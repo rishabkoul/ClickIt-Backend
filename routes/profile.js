@@ -51,23 +51,53 @@ router.get("/getprofile", verify, async (req, res) => {
 router.get("/getallprofiles", verify, async (req, res) => {
   const { page = 1 } = req.query;
   const { limit = 20 } = req.query;
+  const categories = req.query.categories
+    ? JSON.parse(req.query.categories)
+    : [];
 
   try {
-    const count = await User.countDocuments();
-    const profiles = await User.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [req.query.lon, req.query.lat],
-          },
-          // $maxDistance: 4000000,
+    let profiles;
+    let count;
+    if (categories.length !== 0) {
+      count = await User.find({
+        categories: {
+          $in: categories,
         },
-      },
-    })
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .exec();
+      }).countDocuments();
+      profiles = await User.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [req.query.lon, req.query.lat],
+            },
+            // $maxDistance: 4000000,
+          },
+        },
+        categories: {
+          $in: categories,
+        },
+      })
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .exec();
+    } else {
+      count = await User.countDocuments();
+      profiles = await User.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [req.query.lon, req.query.lat],
+            },
+            // $maxDistance: 4000000,
+          },
+        },
+      })
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .exec();
+    }
 
     res.json({
       profiles: profiles,
