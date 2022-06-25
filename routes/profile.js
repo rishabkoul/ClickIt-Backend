@@ -51,11 +51,11 @@ router.get("/getprofile", verify, async (req, res) => {
 router.get("/getallprofiles", verify, async (req, res) => {
   const { page = 1 } = req.query;
   const { limit = 20 } = req.query;
-  const categories = req.query.categories
-    ? JSON.parse(req.query.categories)
-    : [];
 
   try {
+    const categories = req.query.categories
+      ? JSON.parse(req.query.categories)
+      : [];
     let profiles;
     let count;
     if (categories.length !== 0) {
