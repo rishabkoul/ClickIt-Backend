@@ -60,75 +60,145 @@ router.get("/getallprofiles", verify, async (req, res) => {
       : [];
     let profiles;
     let count;
-    if (categories.length !== 0) {
-      count = await User.find({
-        categories: {
-          $in: categories,
-        },
-      }).countDocuments();
-      // profiles = await User.find({
-      //   location: {
-      //     $near: {
-      //       $geometry: {
-      //         type: "Point",
-      //         coordinates: [req.query.lon, req.query.lat],
-      //       },
-      //       // $distanceField: "dist.calculated",
-      //       // $maxDistance: 4000000,
-      //     },
-      //   },
-      //   categories: {
-      //     $in: categories,
-      //   },
-      // })
-      //   .limit(limit)
-      //   .skip((page - 1) * limit)
-      //   .exec();
-
-      profiles = await User.aggregate([
-        {
-          $geoNear: {
-            near: {
-              type: "Point",
-              coordinates: [parseFloat(lon), parseFloat(lat)],
-            },
-            distanceField: "distance",
-            spherical: true,
-            query: {
-              categories: {
-                $in: categories,
+    if (req.query.maxDistance) {
+      if (categories.length !== 0) {
+        count = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              distanceField: "distance",
+              maxDistance: parseFloat(req.query.maxDistance),
+              spherical: true,
+              query: {
+                categories: {
+                  $in: categories,
+                },
               },
             },
           },
-        },
-        {
-          $skip: (parseInt(page) - 1) * parseInt(limit),
-        },
-        {
-          $limit: parseInt(limit),
-        },
-      ]);
-    } else {
-      count = await User.countDocuments();
+          { $group: { _id: null, count: { $sum: 1 } } },
+        ]);
 
-      profiles = await User.aggregate([
-        {
-          $geoNear: {
-            near: {
-              type: "Point",
-              coordinates: [parseFloat(lon), parseFloat(lat)],
+        count = count[0].count;
+
+        profiles = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              distanceField: "distance",
+              maxDistance: parseFloat(req.query.maxDistance),
+              spherical: true,
+              query: {
+                categories: {
+                  $in: categories,
+                },
+              },
             },
-            distanceField: "distance",
-            spherical: true,
           },
-        },
-        {
-          $skip: (parseInt(page) - 1) * parseInt(limit),
-        },
-        {
-          $limit: parseInt(limit),
-        },
-      ]);
+          {
+            $skip: (parseInt(page) - 1) * parseInt(limit),
+          },
+          {
+            $limit: parseInt(limit),
+          },
+        ]);
+      } else {
+        count = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              distanceField: "distance",
+              maxDistance: parseFloat(req.query.maxDistance),
+              spherical: true,
+            },
+          },
+          { $group: { _id: null, count: { $sum: 1 } } },
+        ]);
+
+        count = count[0].count;
+
+        profiles = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              maxDistance: parseFloat(req.query.maxDistance),
+              distanceField: "distance",
+              spherical: true,
+            },
+          },
+          {
+            $skip: (parseInt(page) - 1) * parseInt(limit),
+          },
+          {
+            $limit: parseInt(limit),
+          },
+        ]);
+      }
+    } else {
+      if (categories.length !== 0) {
+        count = await User.find({
+          categories: {
+            $in: categories,
+          },
+        }).countDocuments();
+
+        profiles = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              distanceField: "distance",
+              spherical: true,
+              query: {
+                categories: {
+                  $in: categories,
+                },
+              },
+            },
+          },
+          {
+            $skip: (parseInt(page) - 1) * parseInt(limit),
+          },
+          {
+            $limit: parseInt(limit),
+          },
+        ]);
+      } else {
+        count = await User.countDocuments();
+
+        profiles = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(lon), parseFloat(lat)],
+              },
+              distanceField: "distance",
+              spherical: true,
+            },
+          },
+          {
+            $skip: (parseInt(page) - 1) * parseInt(limit),
+          },
+          {
+            $limit: parseInt(limit),
+          },
+        ]);
+      }
     }
 
     res.json({
