@@ -60,144 +60,647 @@ router.get("/getallprofiles", verify, async (req, res) => {
       : [];
     let profiles;
     let count;
-    if (req.query.maxDistance) {
-      if (categories.length !== 0) {
-        count = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
-              },
-              distanceField: "distance",
-              maxDistance: parseFloat(req.query.maxDistance),
-              spherical: true,
-              query: {
-                categories: {
-                  $in: categories,
+    if (req.query.rate) {
+      if (req.query.sortRateAscending === "true") {
+        if (req.query.maxDistance) {
+          if (categories.length !== 0) {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
                 },
               },
-            },
-          },
-          { $group: { _id: null, count: { $sum: 1 } } },
-        ]);
-
-        count = count[0].count;
-
-        profiles = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
               },
-              distanceField: "distance",
-              maxDistance: parseFloat(req.query.maxDistance),
-              spherical: true,
-              query: {
-                categories: {
-                  $in: categories,
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
                 },
               },
-            },
-          },
-          {
-            $skip: (parseInt(page) - 1) * parseInt(limit),
-          },
-          {
-            $limit: parseInt(limit),
-          },
-        ]);
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        } else {
+          if (categories.length !== 0) {
+            count = await User.find({
+              categories: {
+                $in: categories,
+              },
+              ratePerDay: {
+                $gte: parseFloat(req.query.rate),
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.find({
+              ratePerDay: {
+                $gte: parseFloat(req.query.rate),
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        }
       } else {
-        count = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
+        if (req.query.maxDistance) {
+          if (categories.length !== 0) {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
               },
-              distanceField: "distance",
-              maxDistance: parseFloat(req.query.maxDistance),
-              spherical: true,
-            },
-          },
-          { $group: { _id: null, count: { $sum: 1 } } },
-        ]);
-
-        count = count[0].count;
-
-        profiles = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
               },
-              maxDistance: parseFloat(req.query.maxDistance),
-              distanceField: "distance",
-              spherical: true,
-            },
-          },
-          {
-            $skip: (parseInt(page) - 1) * parseInt(limit),
-          },
-          {
-            $limit: parseInt(limit),
-          },
-        ]);
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        } else {
+          if (categories.length !== 0) {
+            count = await User.find({
+              categories: {
+                $in: categories,
+              },
+              ratePerDay: {
+                $gte: parseFloat(req.query.rate),
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.find({
+              ratePerDay: {
+                $gte: parseFloat(req.query.rate),
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        }
       }
     } else {
-      if (categories.length !== 0) {
-        count = await User.find({
-          categories: {
-            $in: categories,
-          },
-        }).countDocuments();
-
-        profiles = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
-              },
-              distanceField: "distance",
-              spherical: true,
-              query: {
-                categories: {
-                  $in: categories,
+      if (req.query.sortRateAscending === "true") {
+        if (req.query.maxDistance) {
+          if (categories.length !== 0) {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
                 },
               },
-            },
-          },
-          {
-            $skip: (parseInt(page) - 1) * parseInt(limit),
-          },
-          {
-            $limit: parseInt(limit),
-          },
-        ]);
-      } else {
-        count = await User.countDocuments();
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
 
-        profiles = await User.aggregate([
-          {
-            $geoNear: {
-              near: {
-                type: "Point",
-                coordinates: [parseFloat(lon), parseFloat(lat)],
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
               },
-              distanceField: "distance",
-              spherical: true,
-            },
-          },
-          {
-            $skip: (parseInt(page) - 1) * parseInt(limit),
-          },
-          {
-            $limit: parseInt(limit),
-          },
-        ]);
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                },
+              },
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        } else {
+          if (categories.length !== 0) {
+            count = await User.find({
+              categories: {
+                $in: categories,
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $sort: { ratePerDay: 1 },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        }
+      } else {
+        if (req.query.maxDistance) {
+          if (categories.length !== 0) {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  spherical: true,
+                },
+              },
+              { $group: { _id: null, count: { $sum: 1 } } },
+            ]);
+
+            count = count[0].count;
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  maxDistance: parseFloat(req.query.maxDistance),
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        } else {
+          if (categories.length !== 0) {
+            count = await User.find({
+              categories: {
+                $in: categories,
+              },
+            }).countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                  query: {
+                    categories: {
+                      $in: categories,
+                    },
+                  },
+                },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          } else {
+            count = await User.countDocuments();
+
+            profiles = await User.aggregate([
+              {
+                $geoNear: {
+                  near: {
+                    type: "Point",
+                    coordinates: [parseFloat(lon), parseFloat(lat)],
+                  },
+                  distanceField: "distance",
+                  spherical: true,
+                },
+              },
+              {
+                $skip: (parseInt(page) - 1) * parseInt(limit),
+              },
+              {
+                $limit: parseInt(limit),
+              },
+            ]);
+          }
+        }
       }
     }
 
@@ -207,7 +710,9 @@ router.get("/getallprofiles", verify, async (req, res) => {
       currentPage: Number(page),
     });
   } catch (error) {
-    res.status(500).json({ msg: `Server Error ${error}` });
+    res.status(500).json({
+      msg: `Server Error ${error} Most probably this have caused due to too many filters that there is no photographer data in the database try removing some filters and trying again`,
+    });
   }
 });
 
