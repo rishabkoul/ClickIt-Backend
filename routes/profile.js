@@ -51,6 +51,7 @@ router.get("/getprofile", verify, async (req, res) => {
 router.get("/getallprofiles", verify, async (req, res) => {
   const { page = 1 } = req.query;
   const { limit = 20 } = req.query;
+  const { query = "" } = req.query;
 
   try {
     const lon = req.query.lon;
@@ -78,11 +79,17 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
               {
-                $match: { ratePerDay: { $lte: parseFloat(req.query.rate) } },
+                $match: {
+                  ratePerDay: { $lte: parseFloat(req.query.rate) },
+                },
               },
               { $group: { _id: null, count: { $sum: 1 } } },
             ]);
@@ -103,6 +110,11 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
@@ -130,6 +142,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   distanceField: "distance",
                   maxDistance: parseFloat(req.query.maxDistance),
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -150,6 +168,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   maxDistance: parseFloat(req.query.maxDistance),
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -175,6 +199,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               ratePerDay: {
                 $gte: parseFloat(req.query.rate),
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -190,6 +218,11 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
@@ -211,6 +244,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               ratePerDay: {
                 $gte: parseFloat(req.query.rate),
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -222,6 +259,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   },
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -256,6 +299,11 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
@@ -281,6 +329,11 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
@@ -305,6 +358,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   distanceField: "distance",
                   maxDistance: parseFloat(req.query.maxDistance),
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -325,6 +384,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   maxDistance: parseFloat(req.query.maxDistance),
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -347,6 +412,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               ratePerDay: {
                 $gte: parseFloat(req.query.rate),
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -362,6 +431,11 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
@@ -380,6 +454,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               ratePerDay: {
                 $gte: parseFloat(req.query.rate),
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -391,6 +469,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   },
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
               {
@@ -424,9 +508,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               { $group: { _id: null, count: { $sum: 1 } } },
             ]);
 
@@ -446,9 +536,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               {
                 $sort: { ratePerDay: 1 },
               },
@@ -470,8 +566,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   distanceField: "distance",
                   maxDistance: parseFloat(req.query.maxDistance),
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               { $group: { _id: null, count: { $sum: 1 } } },
             ]);
 
@@ -487,8 +590,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   maxDistance: parseFloat(req.query.maxDistance),
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               {
                 $sort: { ratePerDay: 1 },
               },
@@ -506,6 +616,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               categories: {
                 $in: categories,
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -521,9 +635,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               {
                 $sort: { ratePerDay: 1 },
               },
@@ -535,7 +655,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
               },
             ]);
           } else {
-            count = await User.countDocuments();
+            count = await User.find({
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
+            }).countDocuments();
 
             profiles = await User.aggregate([
               {
@@ -546,8 +671,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   },
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               {
                 $sort: { ratePerDay: 1 },
               },
@@ -577,9 +709,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               { $group: { _id: null, count: { $sum: 1 } } },
             ]);
 
@@ -599,9 +737,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               {
                 $skip: (parseInt(page) - 1) * parseInt(limit),
               },
@@ -620,8 +764,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   distanceField: "distance",
                   maxDistance: parseFloat(req.query.maxDistance),
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               { $group: { _id: null, count: { $sum: 1 } } },
             ]);
 
@@ -637,8 +788,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   maxDistance: parseFloat(req.query.maxDistance),
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               {
                 $skip: (parseInt(page) - 1) * parseInt(limit),
               },
@@ -653,6 +811,10 @@ router.get("/getallprofiles", verify, async (req, res) => {
               categories: {
                 $in: categories,
               },
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
             }).countDocuments();
 
             profiles = await User.aggregate([
@@ -668,9 +830,14 @@ router.get("/getallprofiles", verify, async (req, res) => {
                     categories: {
                       $in: categories,
                     },
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
                   },
                 },
               },
+
               {
                 $skip: (parseInt(page) - 1) * parseInt(limit),
               },
@@ -679,7 +846,12 @@ router.get("/getallprofiles", verify, async (req, res) => {
               },
             ]);
           } else {
-            count = await User.countDocuments();
+            count = await User.find({
+              $or: [
+                { name: new RegExp(query, "i") },
+                { kit: new RegExp(query, "i") },
+              ],
+            }).countDocuments();
 
             profiles = await User.aggregate([
               {
@@ -690,8 +862,15 @@ router.get("/getallprofiles", verify, async (req, res) => {
                   },
                   distanceField: "distance",
                   spherical: true,
+                  query: {
+                    $or: [
+                      { name: new RegExp(query, "i") },
+                      { kit: new RegExp(query, "i") },
+                    ],
+                  },
                 },
               },
+
               {
                 $skip: (parseInt(page) - 1) * parseInt(limit),
               },
