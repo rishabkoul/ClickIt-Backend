@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require("../model/User");
+const Email = require("../model/Email");
+const Phone = require("../model/Phone");
 const { editProfileValidation } = require("../validation");
 const verify = require("./verifyToken");
 
@@ -15,6 +17,12 @@ router.post("/editprofile", verify, async (req, res) => {
       return res
         .status(400)
         .json({ message: "User doesnt Exist try signingup" });
+    }
+    if (profile.email !== req.body.email) {
+      await Email.deleteOne({ email: profile.email });
+    }
+    if (profile.phone !== req.body.phone) {
+      await Phone.deleteOne({ phone: profile.phone });
     }
     profile.email = req.body.email;
     profile.phone = req.body.phone;

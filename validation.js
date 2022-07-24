@@ -68,6 +68,15 @@ const editLocationValidation = (data) => {
   return schema.validate(data);
 };
 
+const bookingValidation = (data) => {
+  const schema = Joi.object({
+    booked_userId: Joi.string().required(),
+    dates_booked: Joi.array().required(),
+  });
+
+  return schema.validate(data);
+};
+
 module.exports.signUpValidation = signUpValidation;
 module.exports.loginPhoneValidation = loginPhoneValidation;
 module.exports.loginEmailValidation = loginEmailValidation;
@@ -75,3 +84,4 @@ module.exports.sendEmailOtpValidation = sendEmailOtpValidation;
 module.exports.sendPhoneOtpValidation = sendPhoneOtpValidation;
 module.exports.editProfileValidation = editProfileValidation;
 module.exports.editLocationValidation = editLocationValidation;
+module.exports.bookingValidation = bookingValidation;
