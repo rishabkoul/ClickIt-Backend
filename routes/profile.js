@@ -56,6 +56,19 @@ router.get("/getprofile", verify, async (req, res) => {
   }
 });
 
+router.get("/getotherprofile", verify, async (req, res) => {
+  try {
+    const profile = await User.findOne({
+      _id: req.query._id,
+    });
+    if (!profile) return res.status(400).json({ message: "Profile not found" });
+
+    res.json({ profile: profile });
+  } catch (err) {
+    res.status(400).json({ message: err });
+  }
+});
+
 router.get("/getallprofiles", verify, async (req, res) => {
   const { page = 1 } = req.query;
   const { limit = 20 } = req.query;
