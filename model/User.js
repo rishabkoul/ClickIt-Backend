@@ -25,6 +25,9 @@ const userSchema = new mongoose.Schema({
     type: { type: String },
     coordinates: [Number],
   },
+  address: {
+    type: String,
+  },
   kit: {
     type: String,
   },

@@ -63,6 +63,7 @@ const editLocationValidation = (data) => {
   const schema = Joi.object({
     lat: Joi.number().required(),
     lon: Joi.number().required(),
+    address: Joi.string().required(),
   });
 
   return schema.validate(data);

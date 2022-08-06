@@ -21,6 +21,8 @@ router.post("/editlocation", verify, async (req, res) => {
       coordinates: [req.body.lon, req.body.lat],
     };
 
+    profile.address = req.body.address;
+
     await profile.save();
 
     res.json({ message: "saved" });
