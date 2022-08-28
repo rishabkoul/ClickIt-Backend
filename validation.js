@@ -72,6 +72,7 @@ const editLocationValidation = (data) => {
 const bookingValidation = (data) => {
   const schema = Joi.object({
     booked_userId: Joi.string().required(),
+    booked_name: Joi.string().required(),
     dates_booked: Joi.array().required(),
   });
 

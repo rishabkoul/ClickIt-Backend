@@ -21,13 +21,15 @@ router.post("/book", verify, async (req, res) => {
 
     const booking = new Booking({
       booked_userId: req.body.booked_userId,
+      booked_name: req.body.booked_name,
       booked_by_userId: profile._id,
+      booked_by_name: profile.name,
       dates_booked: dates_booked,
     });
 
     await booking.save();
 
-    res.json({ message: "booked" });
+    res.json({ booking: booking });
   } catch (err) {
     res.status(400).json({ message: err });
   }
