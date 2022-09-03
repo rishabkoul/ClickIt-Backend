@@ -1,0 +1,1 @@
+{"id":"4b4f6a46-e981-4c58-b188-0e70a96627a5","space":30786,"runtime":"nodejs14.x","name":"clickit_micro","path":"i4cxm3","project":"d0h1u9wn","account":"144798365827","region":"ap-south-1","deps":["@hapi/joi@^17.1.1","dotenv@^16.0.1","express@^4.18.1","jsonwebtoken@^8.5.1","mongoose@^6.3.4"],"envs":["DB_CONNECT","TOKEN_SECRET"],"public":false,"log_level":"off","cron":""}
