@@ -71,6 +71,7 @@ router.get("/getyourbookings", verify, async (req, res) => {
         booked_by_userId: req.user._id,
         booked_name: new RegExp(query, "i"),
       })
+        .sort("-updatedAt")
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec();
